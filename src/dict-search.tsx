@@ -28,8 +28,8 @@ export default function Search(): ReactElement {
     const [id, setId] = useState<string | undefined>("")
 
     useEffect(() => {
-        console.log(searchDictWord)
-        console.log(id)
+        console.log("Search word: " + searchDictWord)
+        console.log("Selected word ID: " + id)
     }, [searchDictWord, id]);
 
     return (
@@ -55,7 +55,7 @@ export default function Search(): ReactElement {
                 <List.EmptyView title='No results :(' image={Icons.Stop} />
             )}
 
-            {searchDictWord && words.length > 0 && (
+            {searchDictWord && words.length > 0 && id && (
                 <WordDetail word={id} />
             )}
         </List>
@@ -70,17 +70,29 @@ function WordDetail({ word }: { word: string | undefined }): ReactElement {
     return (
         <List.Detail isLoading={isLoading}>
             <List.Detail.Content>
-                <List.Detail.Content.H4>{word}</List.Detail.Content.H4>
-                {data?.entries.map((entry, index) => (
+                {error ? (
+                    <List.Detail.Content.Paragraph>Error loading definition</List.Detail.Content.Paragraph>
+                ) : !data?.entries?.length ? (
+                    <List.Detail.Content.Paragraph>No definition found for "{word}"</List.Detail.Content.Paragraph>
+                ) : (
                     <>
-                        <List.Detail.Content.H5 key={index}>
-                            {entry.partOfSpeech}  —  {entry.pronunciations[0]?.text || "No pronunciation available"}
-                        </List.Detail.Content.H5>
+                        <List.Detail.Content.H4>{word}</List.Detail.Content.H4>
+                        {data.entries.map((entry, index) => (
+                            <>
+                                <List.Detail.Content.H6 key={index}>
+                                    {entry.partOfSpeech} {index}  —  {entry.pronunciations[0]?.text || "No pronunciation available"}
+                                </List.Detail.Content.H6>
+                                <List.Detail.Content.Paragraph>
+                                    {entry.senses.map((sense, index) => `${index + 1}.  ${sense.definition}`).join('\n')}
+                                </List.Detail.Content.Paragraph>
+                            </>
+                        ))}
+                        <List.Detail.Content.HorizontalBreak />
                         <List.Detail.Content.Paragraph>
-                            {entry.senses.map((sense, index) => `${index + 1}.  ${sense.definition}`).join('\n')}
+                            Source: {data?.source.url} ({data?.source.license.name})
                         </List.Detail.Content.Paragraph>
                     </>
-                ))}
+                )}
             </List.Detail.Content>
         </List.Detail>
     );
