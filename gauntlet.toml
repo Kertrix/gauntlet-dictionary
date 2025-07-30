@@ -1,14 +1,18 @@
 [gauntlet]
-name = 'Template Plugin'
+name = 'Dictionary'
 description = """
-Template Plugin Description
+Search for meanings of words
 """
 
 [[entrypoint]]
-id = 'template-view'
-name = 'Template view'
-path = 'src/template-view.tsx'
+id = 'search'
+name = 'Dictionary search'
+path = 'src/dict-search.tsx'
 type = 'view'
+icon = 'extension_icon.png'
 description = """
-Template Plugin Entrypoint Description
+Find the meaning of a word
 """
+
+[permissions]
+network = ["api.datamuse.com"]
