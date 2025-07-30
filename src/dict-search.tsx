@@ -1,5 +1,7 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { Detail, Icons, List } from "@project-gauntlet/api/components";
+import { useFetch } from '@project-gauntlet/api/hooks';
+import { WordDefinition } from './types';
 
 export default function Search(): ReactElement {
     const [searchDictWord, setSearchDictWord] = useState<string | undefined>("");
@@ -25,6 +27,11 @@ export default function Search(): ReactElement {
 
     const [id, setId] = useState<string | undefined>("")
 
+    useEffect(() => {
+        console.log(searchDictWord)
+        console.log(id)
+    }, [searchDictWord, id]);
+
     return (
         <List onItemFocusChange={setId} isLoading={isLoading}>
             <List.SearchBar
@@ -49,15 +56,32 @@ export default function Search(): ReactElement {
             )}
 
             {searchDictWord && words.length > 0 && (
-                <List.Detail>
-                    <List.Detail.Content>
-                        <List.Detail.Content.H4>
-                            {id}
-                        </List.Detail.Content.H4>
-                    </List.Detail.Content>
-                </List.Detail>
+                <WordDetail word={id} />
             )}
         </List>
     );
 };
 
+function WordDetail({ word }: { word: string | undefined }): ReactElement {
+    const { data, error, isLoading } = useFetch<WordDefinition>(
+        "https://freedictionaryapi.com/api/v1/entries/en/" + encodeURIComponent(word || "")
+    );
+
+    return (
+        <List.Detail isLoading={isLoading}>
+            <List.Detail.Content>
+                <List.Detail.Content.H4>{word}</List.Detail.Content.H4>
+                {data?.entries.map((entry, index) => (
+                    <>
+                        <List.Detail.Content.H5 key={index}>
+                            {entry.partOfSpeech}  —  {entry.pronunciations[0]?.text || "No pronunciation available"}
+                        </List.Detail.Content.H5>
+                        <List.Detail.Content.Paragraph>
+                            {entry.senses.map((sense, index) => `${index + 1}.  ${sense.definition}`).join('\n')}
+                        </List.Detail.Content.Paragraph>
+                    </>
+                ))}
+            </List.Detail.Content>
+        </List.Detail>
+    );
+}
