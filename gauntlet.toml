@@ -16,3 +16,10 @@ Find the meaning of a word
 
 [permissions]
 network = ["api.datamuse.com", "freedictionaryapi.com"]
+clipboard = ["write"]
+
+[permissions.exec]
+command = ["xdg-open", "open", "start", "firefox"]
+
+[[supported_system]]
+os = 'linux'
